@@ -344,7 +344,7 @@ where
 /// struct Temperature(f32);
 ///
 /// // Notably the default for Temperature is different than the default for the
-/// // dereferenced valued. Using this type, if the component is not present on
+/// // dereferenced value. Using this type, if the component is not present on
 /// // the entity, the query will return 20.0, rather than 0.0.
 /// impl Default for Temperature {
 ///     fn default() -> Self {
@@ -423,7 +423,7 @@ where
 /// struct Temperature(f32);
 ///
 /// // Notably the default for Temperature is different than the default for the
-/// // dereferenced valued. Using this type, if the component is not present on
+/// // dereferenced value. Using this type, if the component is not present on
 /// // the entity, the query will return 20.0, rather than 0.0.
 /// impl Default for Temperature {
 ///     fn default() -> Self {
@@ -501,7 +501,7 @@ where
 /// struct Temperatures(Vec<f32>);
 ///
 /// // Notably the default for Temperature is different than the default for the
-/// // dereferenced valued. Using this type, if the component is not present on
+/// // dereferenced value. Using this type, if the component is not present on
 /// // the entity, the query will return 20.0, rather than 0.0.
 /// impl Default for Temperatures {
 ///     fn default() -> Self {
@@ -520,9 +520,6 @@ where
 /// #[derive(Component, Deref)]
 /// struct Temperatures(Vec<f32>);
 ///
-/// // Notably the default for Temperature is different than the default for the
-/// // dereferenced valued. Using this type, if the component is not present on
-/// // the entity, the query will return 20.0, rather than 0.0.
 /// impl Default for Temperatures {
 ///     fn default() -> Self {
 ///         Self(vec![20.0])

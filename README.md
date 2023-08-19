@@ -1,12 +1,12 @@
 [![Bevy tracking](https://img.shields.io/badge/Bevy%20tracking-released%20version-lightblue)](https://github.com/bevyengine/bevy/blob/main/docs/plugins_guidelines.md#main-branch-tracking)
 
 A collection of types used to simplify how components are used in queries, by implementing
-bevy's [`WorldQuery`](bevy::ecs::query::WorldQuery) on generics.
+bevy's [`WorldQuery`](https://docs.rs/bevy/latest/bevy/ecs/query/trait.WorldQuery.html) on generics.
 
 # Example of use
-```
-# use bevy::prelude::*;
-# use std::ops::Deref;
+```rust
+use bevy::prelude::*;
+use std::ops::Deref;
 use bevy_query_ext::AsDerefOrU32;
 
 // Component which indicates ammo left in a weapon
@@ -41,12 +41,12 @@ type AmmoCount = AsDerefOrU32<Ammo, 1>;
 # Basic types
 
 Our crate is composed of these basic types:
-* [`AsDeref<T>`] - Returns T dereferenced (a la `Deref` trait)
-* [`AsDerefMut<T>`] - Returns T dereferenced (a la `DerefMut` trait)
-* [`Copied<T>`] - Returns T copied (a la `Copy` trait)
-* [`Cloned<T>`] - Returns T cloned (a la `Clone` trait)
-* [`OrDefault<T>`] - Returns T if the entity has this component, or its default (a la `Default` trait)
-* [`OrBool<T, const V: bool>`], [`OrChar<T, const V: bool>`], [`OrUsize<T, const V: usize>`], etc. -
+* [`AsDeref<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.AsDeref.html) - Returns T dereferenced (a la `Deref` trait)
+* [`AsDerefMut<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.AsDerefMut.html) - Returns T dereferenced (a la `DerefMut` trait)
+* [`Copied<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.Copied.html) - Returns T copied (a la `Copy` trait)
+* [`Cloned<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.Cloned.html) - Returns T cloned (a la `Clone` trait)
+* [`OrDefault<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrDefault.html) - Returns T if the entity has this component, or its default (a la `Default` trait)
+* [`OrBool<T, const V: bool>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrBool.html), [`OrChar<T, const V: bool>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrChar.html), [`OrUsize<T, const V: usize>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrUsize.html), etc. -
 Returns T.borrow() (a la `Borrow` trait), or the constant provided if the entity does not have
 this component
 
@@ -66,11 +66,11 @@ However, Rust's associated types are assumed to be invariant, and there is no la
 that allows us to enforce that the associated types are covariant types so even if we could get
 around it with unsafe code we couldn't restrict it to the proper types. This means we can't
 simply implement `<T: WorldQuery> Copied<T>`. However, thanks to the way Rust's typing works,
-we can manually implement composed types like `Copied<AsDeref<T>>` even if `AsDeref<T>`.
+we can manually implement composed types like `Copied<AsDeref<T>>` even with `Copied<T>` already implemented.
 
 This crate attempts to manually implement all useful compositions of the types here, and to
-indicate these with specialized type aliases (`AsDerefCopiedOfClonedOrDefault` is probably the
-most egregious for `Copied<AsDeref<OrDefault<Cloned<T>>>>`).
+indicate these with specialized type aliases. [`AsDerefCopiedOfClonedOrDefault`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.AsDerefCopiedOfClonedOrDefault.html) is probably the
+most egregious of these.
 
 # Bevy Compatibility
 
