@@ -1,6 +1,6 @@
 [package]
 name = "bevy_query_ext"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Testare <testare.i9z@gmail.com>"]
 description = "Extensions for Bevy's queries"

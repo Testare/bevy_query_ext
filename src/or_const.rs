@@ -8,6 +8,8 @@ use super::extensions::AsDeref;
 
 macro_rules! or_const {
     ($OrConst:ident, $OrConstQ:ident, $AsDerefOrConst: ident, $const_type:ty, $wrapped:literal) => {
+
+        #[derive(Debug)]
         pub struct $OrConstQ<T, const V: $const_type>(PhantomData<T>);
 
 

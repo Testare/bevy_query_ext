@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+#![warn(missing_debug_implementations)]
 
 mod base;
 mod extensions;

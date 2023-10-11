@@ -9,9 +9,11 @@ use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
 /// An empty structure type
 /// Used to simplify the different modified queries
 /// so we don't have as much boilerplate for all the implementations
+#[derive(Debug)]
 pub struct ModQ<T>(PhantomData<T>);
 
 /// A form of [`ModQ`] for mutable queries
+#[derive(Debug)]
 pub struct ModQMut<T>(PhantomData<T>);
 
 /// A trait implementation that can be implemented to simplify creating

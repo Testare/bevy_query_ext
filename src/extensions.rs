@@ -7,10 +7,15 @@ use bevy::ecs::world::Mut;
 
 use super::base::{ModQ, ModQMut, ModQuery, ModQueryMut};
 
+#[derive(Debug)]
 pub struct CopiedQ<T>(PhantomData<T>);
+#[derive(Debug)]
 pub struct ClonedQ<T>(PhantomData<T>);
+#[derive(Debug)]
 pub struct AsDerefQ<T>(PhantomData<T>);
+#[derive(Debug)]
 pub struct AsDerefMutQ<T>(PhantomData<T>);
+#[derive(Debug)]
 pub struct OrDefaultQ<T>(PhantomData<T>);
 
 /// Clones a type when it is retrieved
