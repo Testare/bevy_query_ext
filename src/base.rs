@@ -74,10 +74,6 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         <T::FromQuery as WorldQuery>::set_archetype(fetch, state, archetype, table);
     }
 
-    unsafe fn clone_fetch<'w>(fetch: &Self::Fetch<'w>) -> Self::Fetch<'w> {
-        <T::FromQuery as WorldQuery>::clone_fetch(fetch)
-    }
-
     unsafe fn set_table<'w>(fetch: &mut Self::Fetch<'w>, state: &Self::State, table: &'w Table) {
         <T::FromQuery as WorldQuery>::set_table(fetch, state, table);
     }
@@ -150,10 +146,6 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         table: &'w Table,
     ) {
         <T::FromQuery as WorldQuery>::set_archetype(fetch, state, archetype, table);
-    }
-
-    unsafe fn clone_fetch<'w>(fetch: &Self::Fetch<'w>) -> Self::Fetch<'w> {
-        <T::FromQuery as WorldQuery>::clone_fetch(fetch)
     }
 
     unsafe fn set_table<'w>(fetch: &mut Self::Fetch<'w>, state: &Self::State, table: &'w Table) {
