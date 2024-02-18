@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use bevy::ecs::archetype::Archetype;
 use bevy::ecs::component::ComponentId;
-use bevy::ecs::query::{FilteredAccess, ReadOnlyWorldQuery, WorldQuery};
+use bevy::ecs::query::{FilteredAccess, QueryData, ReadOnlyQueryData, WorldQuery};
 use bevy::ecs::storage::Table;
 use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
 
@@ -17,12 +17,12 @@ pub struct ModQ<T>(PhantomData<T>);
 pub struct ModQMut<T>(PhantomData<T>);
 
 /// A trait implementation that can be implemented to simplify creating
-/// a ReadOnlyWorldQuery based off another ReadOnlyWorldQuery.
+/// a ReadOnlyQueryData based off another ReadOnlyWorldQuery.
 pub trait ModQuery {
-    type FromQuery: ReadOnlyWorldQuery;
+    type FromQuery: ReadOnlyQueryData;
     type ModItem<'q>;
 
-    fn modify_reference<'s>(from: <Self::FromQuery as WorldQuery>::Item<'s>) -> Self::ModItem<'s>;
+    fn modify_reference(from: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_>;
 
     fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort>;
 }
@@ -32,19 +32,22 @@ pub trait ModQuery {
 pub trait ModQueryMut {
     type FromQuery: WorldQuery;
     type ModItem<'q>;
-    type ReadOnly: ReadOnlyWorldQuery<
+    type ReadOnly: ReadOnlyQueryData<
         State = <<Self as ModQueryMut>::FromQuery as WorldQuery>::State,
     >;
 
-    fn modify_reference<'s>(from: <Self::FromQuery as WorldQuery>::Item<'s>) -> Self::ModItem<'s>;
+    fn modify_reference(from: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_>;
 
     fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort>;
+}
+
+unsafe impl<T: ModQuery> QueryData for ModQ<T> {
+    type ReadOnly = Self;
 }
 
 unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
     type Fetch<'w> = <T::FromQuery as WorldQuery>::Fetch<'w>;
     type Item<'w> = T::ModItem<'w>;
-    type ReadOnly = Self;
     type State = <T::FromQuery as WorldQuery>::State;
 
     fn shrink<'wlong: 'wshort, 'wshort>(item: Self::Item<'wlong>) -> Self::Item<'wshort> {
@@ -52,7 +55,6 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
     }
 
     const IS_DENSE: bool = <T::FromQuery>::IS_DENSE;
-    const IS_ARCHETYPAL: bool = <T::FromQuery>::IS_ARCHETYPAL;
 
     #[inline]
     unsafe fn init_fetch<'w>(
@@ -92,14 +94,6 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
-    fn update_archetype_component_access(
-        state: &Self::State,
-        archetype: &Archetype,
-        access: &mut bevy::ecs::query::Access<bevy::ecs::archetype::ArchetypeComponentId>,
-    ) {
-        <T::FromQuery as WorldQuery>::update_archetype_component_access(state, archetype, access)
-    }
-
     fn init_state(world: &mut bevy::prelude::World) -> Self::State {
         <T::FromQuery as WorldQuery>::init_state(world)
     }
@@ -109,16 +103,19 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         set_contains_id: &impl Fn(bevy::ecs::component::ComponentId) -> bool,
     ) -> bool {
         <T::FromQuery as WorldQuery>::matches_component_set(state, set_contains_id)
+    }
+
+    fn get_state(world: &bevy::prelude::World) -> Option<Self::State> {
+        <T::FromQuery as WorldQuery>::get_state(world)
     }
 }
 
 // SAFETY: ModQuery comes from a read only query
-unsafe impl<T: ModQuery> ReadOnlyWorldQuery for ModQ<T> {}
+unsafe impl<T: ModQuery> ReadOnlyQueryData for ModQ<T> {}
 
 unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
     type Fetch<'w> = <T::FromQuery as WorldQuery>::Fetch<'w>;
     type Item<'w> = T::ModItem<'w>;
-    type ReadOnly = T::ReadOnly;
     type State = <T::FromQuery as WorldQuery>::State;
 
     fn shrink<'wlong: 'wshort, 'wshort>(item: Self::Item<'wlong>) -> Self::Item<'wshort> {
@@ -126,7 +123,6 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
     }
 
     const IS_DENSE: bool = <T::FromQuery>::IS_DENSE;
-    const IS_ARCHETYPAL: bool = <T::FromQuery>::IS_ARCHETYPAL;
 
     #[inline]
     unsafe fn init_fetch<'w>(
@@ -166,14 +162,6 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
-    fn update_archetype_component_access(
-        state: &Self::State,
-        archetype: &Archetype,
-        access: &mut bevy::ecs::query::Access<bevy::ecs::archetype::ArchetypeComponentId>,
-    ) {
-        <T::FromQuery as WorldQuery>::update_archetype_component_access(state, archetype, access)
-    }
-
     fn init_state(world: &mut bevy::prelude::World) -> Self::State {
         <T::FromQuery as WorldQuery>::init_state(world)
     }
@@ -184,4 +172,12 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
     ) -> bool {
         <T::FromQuery as WorldQuery>::matches_component_set(state, set_contains_id)
     }
+
+    fn get_state(world: &bevy::prelude::World) -> Option<Self::State> {
+        <T::FromQuery as WorldQuery>::get_state(world)
+    }
+}
+
+unsafe impl<T: ModQueryMut> QueryData for ModQMut<T> {
+    type ReadOnly = T::ReadOnly;
 }

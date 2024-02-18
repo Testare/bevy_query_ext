@@ -54,6 +54,16 @@ You can use these basic types by themselves, but they are most useful composed w
 There are type aliases for most valid compositions of these types. For example,
 `type AsDerefCopied<T> = Copied<AsDeref<T>>`.
 
+# Note about destructors and Entity components
+
+A common use case the author has had is having components that dereference to entities. But using `AsDerefCopied` in
+long tuple-queries can lead to you getting entities mixed up since they are no longer type-protected. It is better
+in these cases to make the dereference fields public and use destructuring assignments if possible. For instance, if
+your component was `pub struct PointsTo(Entity)`, you can get the value using something like 
+`for (&PointsTo(points_to), <..>) = query.iter()` instead.
+
+This is also not a problem for derived queries with named fields.
+
 
 # Note on limitations of composition
 
@@ -79,6 +89,7 @@ bevy library, but we'll list compatibility here.
 
 | bevy | bevy_query_ext |
 |------|----------------|
+| 0.13 | 0.3            |
 | 0.12 | 0.2            |
 | 0.11 | 0.1            |
 

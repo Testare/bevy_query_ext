@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use std::marker::PhantomData;
 
-use bevy::ecs::query::{ReadOnlyWorldQuery, WorldQuery};
+use bevy::ecs::query::{ReadOnlyQueryData, WorldQuery};
 
 use super::base::{ModQ, ModQuery};
 use super::extensions::AsDeref;
@@ -46,12 +46,12 @@ macro_rules! or_const {
         pub type $AsDerefOrConst<T, const V: $const_type> = $OrConst<AsDeref<T>, V>;
 
 
-        impl <T: ReadOnlyWorldQuery, const V: $const_type> ModQuery for $OrConstQ<T, V>
+        impl <T: ReadOnlyQueryData, const V: $const_type> ModQuery for $OrConstQ<T, V>
             where for<'a> <T as WorldQuery>::Item<'a>: Borrow<$const_type> {
             type FromQuery = Option<T>;
             type ModItem<'s> = $const_type;
 
-            fn modify_reference<'s>(t: <Self::FromQuery as WorldQuery>::Item<'s>) -> Self::ModItem<'s> {
+            fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
                 t.map(|b|*b.borrow()).unwrap_or(V)
             }
 
