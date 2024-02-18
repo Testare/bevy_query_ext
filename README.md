@@ -1,7 +1,7 @@
 [![Bevy tracking](https://img.shields.io/badge/Bevy%20tracking-released%20version-lightblue)](https://github.com/bevyengine/bevy/blob/main/docs/plugins_guidelines.md#main-branch-tracking)
 
 A collection of types used to simplify how components are used in queries, by implementing
-bevy's [`WorldQuery`](https://docs.rs/bevy/latest/bevy/ecs/query/trait.WorldQuery.html) on generics.
+bevy's [`QueryData`](https://docs.rs/bevy/latest/bevy/ecs/query/trait.QueryData.html) on generics.
 
 # Example of use
 ```rust
@@ -67,7 +67,7 @@ This is also not a problem for derived queries with named fields.
 
 # Note on limitations of composition
 
-Because of the way WorldQuery works, in order to implement it, we need to know that the
+Because of the way QueryData works, in order to implement it, we need to know that the
 lifetime for all parameters is "covariant," or rather that if `'a : 'b` then `T<'a> : T<'b>`. 
 
 For more information on variance, see [here](https://doc.rust-lang.org/nomicon/subtyping.html).
@@ -75,7 +75,7 @@ For more information on variance, see [here](https://doc.rust-lang.org/nomicon/s
 However, Rust's associated types are assumed to be invariant, and there is no language feature
 that allows us to enforce that the associated types are covariant types so even if we could get
 around it with unsafe code we couldn't restrict it to the proper types. This means we can't
-simply implement `<T: WorldQuery> Copied<T>`. However, thanks to the way Rust's typing works,
+simply implement `<T: QueryData> Copied<T>`. However, thanks to the way Rust's typing works,
 we can manually implement composed types like `Copied<AsDeref<T>>` even with `Copied<T>` already implemented.
 
 This crate attempts to manually implement all useful compositions of the types here, and to
