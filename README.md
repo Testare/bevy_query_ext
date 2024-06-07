@@ -87,11 +87,12 @@ most egregious of these.
 Since there can be breaking changes to our APIs we will have different versions for our code than the compatible
 bevy library, but we'll list compatibility here.
 
-| bevy | bevy_query_ext |
-|------|----------------|
-| 0.13 | 0.3            |
-| 0.12 | 0.2            |
-| 0.11 | 0.1            |
+| bevy        | bevy_query_ext |
+|-------------|----------------|
+| 0.14.0-rc.2 | 0.4.0-rc.2     |
+| 0.13        | 0.3            |
+| 0.12        | 0.2            |
+| 0.11        | 0.1            |
 
 # Feedback
 

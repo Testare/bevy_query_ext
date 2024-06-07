@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use bevy::ecs::archetype::Archetype;
-use bevy::ecs::component::ComponentId;
+use bevy::ecs::component::{ComponentId, ComponentInitializer};
 use bevy::ecs::query::{FilteredAccess, QueryData, ReadOnlyQueryData, WorldQuery};
 use bevy::ecs::storage::Table;
 use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
@@ -94,8 +94,8 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
-    fn init_state(world: &mut bevy::prelude::World) -> Self::State {
-        <T::FromQuery as WorldQuery>::init_state(world)
+    fn init_state(component_initializer: &mut ComponentInitializer) -> Self::State {
+        <T::FromQuery as WorldQuery>::init_state(component_initializer)
     }
 
     fn matches_component_set(
@@ -105,8 +105,8 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         <T::FromQuery as WorldQuery>::matches_component_set(state, set_contains_id)
     }
 
-    fn get_state(world: &bevy::prelude::World) -> Option<Self::State> {
-        <T::FromQuery as WorldQuery>::get_state(world)
+    fn get_state(components: &bevy::ecs::component::Components) -> Option<Self::State> {
+        <T::FromQuery as WorldQuery>::get_state(components)
     }
 }
 
@@ -162,8 +162,8 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
-    fn init_state(world: &mut bevy::prelude::World) -> Self::State {
-        <T::FromQuery as WorldQuery>::init_state(world)
+    fn init_state(component_initializer: &mut ComponentInitializer) -> Self::State {
+        <T::FromQuery as WorldQuery>::init_state(component_initializer)
     }
 
     fn matches_component_set(
@@ -173,8 +173,8 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         <T::FromQuery as WorldQuery>::matches_component_set(state, set_contains_id)
     }
 
-    fn get_state(world: &bevy::prelude::World) -> Option<Self::State> {
-        <T::FromQuery as WorldQuery>::get_state(world)
+    fn get_state(components: &bevy::ecs::component::Components) -> Option<Self::State> {
+        <T::FromQuery as WorldQuery>::get_state(components)
     }
 }
 
