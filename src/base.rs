@@ -1,10 +1,11 @@
 use std::marker::PhantomData;
 
 use bevy::ecs::archetype::Archetype;
-use bevy::ecs::component::{ComponentId, ComponentInitializer};
+use bevy::ecs::component::ComponentId;
 use bevy::ecs::query::{FilteredAccess, QueryData, ReadOnlyQueryData, WorldQuery};
 use bevy::ecs::storage::Table;
 use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
+use bevy::ecs::world::World;
 
 /// An empty structure type
 /// Used to simplify the different modified queries
@@ -94,8 +95,8 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
-    fn init_state(component_initializer: &mut ComponentInitializer) -> Self::State {
-        <T::FromQuery as WorldQuery>::init_state(component_initializer)
+    fn init_state(world: &mut World) -> Self::State {
+        <T::FromQuery as WorldQuery>::init_state(world)
     }
 
     fn matches_component_set(
@@ -162,8 +163,8 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
-    fn init_state(component_initializer: &mut ComponentInitializer) -> Self::State {
-        <T::FromQuery as WorldQuery>::init_state(component_initializer)
+    fn init_state(world: &mut World) -> Self::State {
+        <T::FromQuery as WorldQuery>::init_state(world)
     }
 
     fn matches_component_set(
