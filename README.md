@@ -89,6 +89,7 @@ bevy library, but we'll list compatibility here.
 
 | bevy        | bevy_query_ext |
 |-------------|----------------|
+| 0.14.0      | 0.4.0          |
 | 0.14.0-rc.2 | 0.4.0-rc.2     |
 | 0.13        | 0.3            |
 | 0.12        | 0.2            |
