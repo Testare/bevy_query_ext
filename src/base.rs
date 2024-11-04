@@ -91,6 +91,10 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         ))
     }
 
+    fn shrink_fetch<'wlong: 'wshort, 'wshort>(fetch: Self::Fetch<'wlong>) -> Self::Fetch<'wshort> {
+        <T::FromQuery as WorldQuery>::shrink_fetch(fetch)
+    }
+
     fn update_component_access(state: &Self::State, access: &mut FilteredAccess<ComponentId>) {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
@@ -157,6 +161,10 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         T::modify_reference(<T::FromQuery as WorldQuery>::fetch(
             fetch, entity, table_row,
         ))
+    }
+
+    fn shrink_fetch<'wlong: 'wshort, 'wshort>(fetch: Self::Fetch<'wlong>) -> Self::Fetch<'wshort> {
+        <T::FromQuery as WorldQuery>::shrink_fetch(fetch)
     }
 
     fn update_component_access(state: &Self::State, access: &mut FilteredAccess<ComponentId>) {
