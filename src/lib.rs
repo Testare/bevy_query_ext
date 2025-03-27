@@ -17,10 +17,10 @@ pub mod prelude {
         OrDefault,
     };
     pub use super::or_const::{
-        AsDerefOrBool, AsDerefOrChar, AsDerefOrI128, AsDerefOrI16, AsDerefOrI32, AsDerefOrI64,
-        AsDerefOrI8, AsDerefOrIsize, AsDerefOrU128, AsDerefOrU16, AsDerefOrU32, AsDerefOrU64,
-        AsDerefOrU8, AsDerefOrUsize, OrBool, OrChar, OrI128, OrI16, OrI32, OrI64, OrI8, OrIsize,
-        OrU128, OrU16, OrU32, OrU64, OrU8, OrUsize,
+        AsDerefOrBool, AsDerefOrChar, AsDerefOrI8, AsDerefOrI16, AsDerefOrI32, AsDerefOrI64,
+        AsDerefOrI128, AsDerefOrIsize, AsDerefOrU8, AsDerefOrU16, AsDerefOrU32, AsDerefOrU64,
+        AsDerefOrU128, AsDerefOrUsize, OrBool, OrChar, OrI8, OrI16, OrI32, OrI64, OrI128, OrIsize,
+        OrU8, OrU16, OrU32, OrU64, OrU128, OrUsize,
     };
 }
 #[doc(inline)]

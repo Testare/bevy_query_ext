@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
-use bevy::ecs::component::Component;
-use bevy::ecs::query::{ReadOnlyQueryData, WorldQuery};
+use bevy::ecs::component::{Component, Mutable};
+use bevy::ecs::query::{QueryData, ReadOnlyQueryData};
 use bevy::ecs::world::Mut;
 
 use super::base::{ModQ, ModQMut, ModQuery, ModQueryMut};
@@ -60,7 +60,7 @@ impl<T: Component + Clone> ModQuery for ClonedQ<T> {
     type FromQuery = &'static T;
     type ModItem<'a> = T;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         t.clone()
     }
 
@@ -110,7 +110,7 @@ impl<T: Component + Copy> ModQuery for CopiedQ<T> {
     type FromQuery = &'static T;
     type ModItem<'a> = T;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         *t
     }
 
@@ -162,7 +162,7 @@ impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
     type FromQuery = &'static T;
     type ModItem<'a> = &'a <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         t.deref()
     }
 
@@ -211,12 +211,12 @@ impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
 ///
 /// ```
 pub type AsDerefMut<T> = ModQMut<AsDerefMutQ<T>>;
-impl<T: Component + DerefMut> ModQueryMut for AsDerefMutQ<T> {
+impl<T: Component<Mutability = Mutable> + DerefMut> ModQueryMut for AsDerefMutQ<T> {
     type FromQuery = &'static mut T;
     type ModItem<'a> = Mut<'a, <T as Deref>::Target>;
     type ReadOnly = AsDeref<T>;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         t.map_unchanged(|t| t.deref_mut())
     }
 
@@ -270,7 +270,7 @@ where
     type FromQuery = &'static T;
     type ModItem<'a> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         *t.deref()
     }
 
@@ -326,7 +326,7 @@ where
     type FromQuery = &'static T;
     type ModItem<'a> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         t.deref().clone()
     }
 
@@ -405,7 +405,7 @@ where
     type FromQuery = Option<&'static T>;
     type ModItem<'a> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         *t.cloned().unwrap_or_default().deref()
     }
 
@@ -483,7 +483,7 @@ where
     type FromQuery = Option<&'static T>;
     type ModItem<'a> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         *t.copied().unwrap_or_default().deref()
     }
 
@@ -565,7 +565,7 @@ where
     type FromQuery = Option<&'static T>;
     type ModItem<'a> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         t.cloned().unwrap_or_default().deref().clone()
     }
 
@@ -636,17 +636,17 @@ where
 pub type OrDefault<T> = ModQ<OrDefaultQ<T>>;
 impl<T: ReadOnlyQueryData> ModQuery for OrDefaultQ<T>
 where
-    for<'a> <T as WorldQuery>::Item<'a>: Default,
+    for<'a> <T as QueryData>::Item<'a>: Default,
 {
     type FromQuery = Option<T>;
     type ModItem<'b> = T::Item<'b>;
 
-    fn modify_reference(t: <Self::FromQuery as WorldQuery>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
         t.unwrap_or_default()
     }
 
     fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
-        <T as WorldQuery>::shrink(item)
+        <T as QueryData>::shrink(item)
     }
 }
 
