@@ -1,6 +1,6 @@
 [package]
 name = "bevy_query_ext"
-version = "0.6.0-rc.2"
+version = "0.6.0"
 edition = "2024"
 authors = ["Testare <testare.i9z@gmail.com>"]
 description = "Extensions for Bevy's queries"
@@ -12,11 +12,22 @@ keywords = ["bevy", "ecs", "game-dev"]
 paste = {version = "1.0.14", optional = true}
 
 [dependencies.bevy]
-version = "0.16.0-rc.2"
+version = "0.16.0"
 default-features = false
 
 [features]
+default = ["std"]
+std = ["bevy/std"]
+libm = ["bevy/libm"]
+critical-section = ["bevy/critical-section"]
+web = ["bevy/web"]
+
 all_docs = ["dep:paste"]
 
 [package.metadata.docs.rs]
 features = ["all_docs"]
+
+[lints.clippy]
+std_instead_of_core = "warn"
+std_instead_of_alloc = "warn"
+alloc_instead_of_core = "warn"

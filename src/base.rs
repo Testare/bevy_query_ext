@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 use bevy::ecs::archetype::Archetype;
 use bevy::ecs::component::ComponentId;

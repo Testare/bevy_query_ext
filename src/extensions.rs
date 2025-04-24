@@ -1,5 +1,5 @@
-use std::marker::PhantomData;
-use std::ops::{Deref, DerefMut};
+use core::marker::PhantomData;
+use core::ops::{Deref, DerefMut};
 
 use bevy::ecs::component::{Component, Mutable};
 use bevy::ecs::query::{QueryData, ReadOnlyQueryData};

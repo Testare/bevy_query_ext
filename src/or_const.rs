@@ -1,5 +1,5 @@
-use std::borrow::Borrow;
-use std::marker::PhantomData;
+use core::borrow::Borrow;
+use core::marker::PhantomData;
 
 use bevy::ecs::query::{QueryData, ReadOnlyQueryData};
 

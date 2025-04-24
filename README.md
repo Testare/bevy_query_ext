@@ -46,9 +46,7 @@ Our crate is composed of these basic types:
 * [`Copied<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.Copied.html) - Returns T copied (a la `Copy` trait)
 * [`Cloned<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.Cloned.html) - Returns T cloned (a la `Clone` trait)
 * [`OrDefault<T>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrDefault.html) - Returns T if the entity has this component, or its default (a la `Default` trait)
-* [`OrBool<T, const V: bool>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrBool.html), [`OrChar<T, const V: bool>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrChar.html), [`OrUsize<T, const V: usize>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrUsize.html), etc. -
-Returns T.borrow() (a la `Borrow` trait), or the constant provided if the entity does not have
-this component
+* [`OrBool<T, const V: bool>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrBool.html), [`OrChar<T, const V: bool>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrChar.html), [`OrUsize<T, const V: usize>`](https://docs.rs/bevy_query_ext/latest/bevy_query_ext/type.OrUsize.html), etc. - Returns T.borrow() (a la `Borrow` trait), or the constant provided if the entity does not have this component
 
 You can use these basic types by themselves, but they are most useful composed with each other (except `DerefMut`).
 There are type aliases for most valid compositions of these types. For example,
