@@ -58,13 +58,17 @@ pub struct OrDefaultQ<T>(PhantomData<T>);
 pub type Cloned<T> = ModQ<ClonedQ<T>>;
 impl<T: Component + Clone> ModQuery for ClonedQ<T> {
     type FromQuery = &'static T;
-    type ModItem<'a> = T;
+    type ModItem<'a, 'b> = T;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         t.clone()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -108,13 +112,17 @@ impl<T: Component + Clone> ModQuery for ClonedQ<T> {
 pub type Copied<T> = ModQ<CopiedQ<T>>;
 impl<T: Component + Copy> ModQuery for CopiedQ<T> {
     type FromQuery = &'static T;
-    type ModItem<'a> = T;
+    type ModItem<'a, 'b> = T;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         *t
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -160,13 +168,17 @@ impl<T: Component + Copy> ModQuery for CopiedQ<T> {
 pub type AsDeref<T> = ModQ<AsDerefQ<T>>;
 impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
     type FromQuery = &'static T;
-    type ModItem<'a> = &'a <T as Deref>::Target;
+    type ModItem<'a, 'b> = &'a <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         t.deref()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -213,14 +225,18 @@ impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
 pub type AsDerefMut<T> = ModQMut<AsDerefMutQ<T>>;
 impl<T: Component<Mutability = Mutable> + DerefMut> ModQueryMut for AsDerefMutQ<T> {
     type FromQuery = &'static mut T;
-    type ModItem<'a> = Mut<'a, <T as Deref>::Target>;
+    type ModItem<'a, 'b> = Mut<'a, <T as Deref>::Target>;
     type ReadOnly = AsDeref<T>;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         t.map_unchanged(|t| t.deref_mut())
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -268,13 +284,17 @@ where
     <T as Deref>::Target: Copy,
 {
     type FromQuery = &'static T;
-    type ModItem<'a> = <T as Deref>::Target;
+    type ModItem<'a, 'b> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         *t.deref()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -324,13 +344,17 @@ where
     <T as Deref>::Target: Clone,
 {
     type FromQuery = &'static T;
-    type ModItem<'a> = <T as Deref>::Target;
+    type ModItem<'a, 'b> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         t.deref().clone()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -403,13 +427,17 @@ where
     <T as Deref>::Target: Copy,
 {
     type FromQuery = Option<&'static T>;
-    type ModItem<'a> = <T as Deref>::Target;
+    type ModItem<'a, 'b> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         *t.cloned().unwrap_or_default().deref()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -481,13 +509,17 @@ where
     <T as Deref>::Target: Copy,
 {
     type FromQuery = Option<&'static T>;
-    type ModItem<'a> = <T as Deref>::Target;
+    type ModItem<'a, 'b> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         *t.copied().unwrap_or_default().deref()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -563,13 +595,17 @@ where
     <T as Deref>::Target: Clone,
 {
     type FromQuery = Option<&'static T>;
-    type ModItem<'a> = <T as Deref>::Target;
+    type ModItem<'a, 'b> = <T as Deref>::Target;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         t.cloned().unwrap_or_default().deref().clone()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         item
     }
 }
@@ -636,16 +672,20 @@ where
 pub type OrDefault<T> = ModQ<OrDefaultQ<T>>;
 impl<T: ReadOnlyQueryData> ModQuery for OrDefaultQ<T>
 where
-    for<'a> <T as QueryData>::Item<'a>: Default,
+    for<'a, 'b> <T as QueryData>::Item<'a, 'b>: Default,
 {
     type FromQuery = Option<T>;
-    type ModItem<'b> = T::Item<'b>;
+    type ModItem<'b, 'c> = T::Item<'b, 'c>;
 
-    fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+    fn modify_reference<'w, 's>(
+        t: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's> {
         t.unwrap_or_default()
     }
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's> {
         <T as QueryData>::shrink(item)
     }
 }

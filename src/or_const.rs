@@ -47,15 +47,15 @@ macro_rules! or_const {
 
 
         impl <T: ReadOnlyQueryData, const V: $const_type> ModQuery for $OrConstQ<T, V>
-            where for<'a> <T as QueryData>::Item<'a>: Borrow<$const_type> {
+            where for<'a,'b> <T as QueryData>::Item<'a, 'b>: Borrow<$const_type> {
             type FromQuery = Option<T>;
-            type ModItem<'s> = $const_type;
+            type ModItem<'s, 'w> = $const_type;
 
-            fn modify_reference(t: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_> {
+            fn modify_reference<'s, 'w>(t: <Self::FromQuery as QueryData>::Item<'s, 'w>) -> Self::ModItem<'s, 'w> {
                 t.map(|b|*b.borrow()).unwrap_or(V)
             }
 
-            fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort> {
+            fn shrink<'wlong: 'wshort, 'wshort, 's>(item: Self::ModItem<'wlong, 's>) -> Self::ModItem<'wshort, 's> {
                 item
             }
         }

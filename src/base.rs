@@ -1,7 +1,6 @@
 use core::marker::PhantomData;
 
 use bevy::ecs::archetype::Archetype;
-use bevy::ecs::component::ComponentId;
 use bevy::ecs::query::{FilteredAccess, QueryData, ReadOnlyQueryData, WorldQuery};
 use bevy::ecs::storage::Table;
 use bevy::ecs::world::World;
@@ -21,43 +20,58 @@ pub struct ModQMut<T>(PhantomData<T>);
 /// a ReadOnlyQueryData based off another ReadOnlyWorldQuery.
 pub trait ModQuery {
     type FromQuery: ReadOnlyQueryData;
-    type ModItem<'q>;
+    type ModItem<'q, 'r>;
 
-    fn modify_reference(from: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_>;
+    fn modify_reference<'w, 's>(
+        from: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's>;
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort>;
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's>;
 }
 
 /// A trait implementation that can be implemented to simplify creating
 /// a WorldQuery based off another WorldQuery.
 pub trait ModQueryMut {
     type FromQuery: QueryData;
-    type ModItem<'q>;
+    type ModItem<'q, 'r>;
     type ReadOnly: ReadOnlyQueryData<
         State = <<Self as ModQueryMut>::FromQuery as WorldQuery>::State,
     >;
 
-    fn modify_reference(from: <Self::FromQuery as QueryData>::Item<'_>) -> Self::ModItem<'_>;
+    fn modify_reference<'w, 's>(
+        from: <Self::FromQuery as QueryData>::Item<'w, 's>,
+    ) -> Self::ModItem<'w, 's>;
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::ModItem<'wlong>) -> Self::ModItem<'wshort>;
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::ModItem<'wlong, 's>,
+    ) -> Self::ModItem<'wshort, 's>;
 }
 
 unsafe impl<T: ModQuery> QueryData for ModQ<T> {
     type ReadOnly = Self;
-    type Item<'w> = T::ModItem<'w>;
+    type Item<'w, 's> = T::ModItem<'w, 's>;
 
     const IS_READ_ONLY: bool = true;
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::Item<'wlong>) -> Self::Item<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::Item<'wlong, 's>,
+    ) -> Self::Item<'wshort, 's> {
         T::shrink(item)
     }
 
-    unsafe fn fetch<'w>(
+    unsafe fn fetch<'w, 's>(
+        state: &'s Self::State,
         fetch: &mut Self::Fetch<'w>,
         entity: bevy::prelude::Entity,
         table_row: bevy::ecs::storage::TableRow,
-    ) -> Self::Item<'w> {
-        unsafe { T::modify_reference(<T::FromQuery as QueryData>::fetch(fetch, entity, table_row)) }
+    ) -> Self::Item<'w, 's> {
+        unsafe {
+            T::modify_reference(<T::FromQuery as QueryData>::fetch(
+                state, fetch, entity, table_row,
+            ))
+        }
     }
 }
 
@@ -99,7 +113,7 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
         <T::FromQuery as WorldQuery>::shrink_fetch(fetch)
     }
 
-    fn update_component_access(state: &Self::State, access: &mut FilteredAccess<ComponentId>) {
+    fn update_component_access(state: &Self::State, access: &mut FilteredAccess) {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
@@ -160,7 +174,7 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
         <T::FromQuery as WorldQuery>::shrink_fetch(fetch)
     }
 
-    fn update_component_access(state: &Self::State, access: &mut FilteredAccess<ComponentId>) {
+    fn update_component_access(state: &Self::State, access: &mut FilteredAccess) {
         <T::FromQuery as WorldQuery>::update_component_access(state, access)
     }
 
@@ -182,19 +196,26 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
 
 unsafe impl<T: ModQueryMut> QueryData for ModQMut<T> {
     type ReadOnly = T::ReadOnly;
-    type Item<'w> = T::ModItem<'w>;
+    type Item<'w, 's> = T::ModItem<'w, 's>;
 
     const IS_READ_ONLY: bool = T::FromQuery::IS_READ_ONLY;
 
-    fn shrink<'wlong: 'wshort, 'wshort>(item: Self::Item<'wlong>) -> Self::Item<'wshort> {
+    fn shrink<'wlong: 'wshort, 'wshort, 's>(
+        item: Self::Item<'wlong, 's>,
+    ) -> Self::Item<'wshort, 's> {
         T::shrink(item)
     }
 
-    unsafe fn fetch<'w>(
+    unsafe fn fetch<'w, 's>(
+        state: &'s Self::State,
         fetch: &mut Self::Fetch<'w>,
         entity: bevy::prelude::Entity,
         table_row: bevy::ecs::storage::TableRow,
-    ) -> Self::Item<'w> {
-        unsafe { T::modify_reference(<T::FromQuery as QueryData>::fetch(fetch, entity, table_row)) }
+    ) -> Self::Item<'w, 's> {
+        unsafe {
+            T::modify_reference(<T::FromQuery as QueryData>::fetch(
+                state, fetch, entity, table_row,
+            ))
+        }
     }
 }
