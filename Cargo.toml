@@ -1,6 +1,6 @@
 [package]
 name = "bevy_query_ext"
-version = "0.7.0-rc"
+version = "0.7.0"
 edition = "2024"
 authors = ["Testare <testare.i9z@gmail.com>"]
 description = "Extensions for Bevy's queries"
@@ -12,7 +12,7 @@ keywords = ["bevy", "ecs", "game-dev"]
 paste = {version = "1.0.14", optional = true}
 
 [dependencies.bevy]
-version = "0.17.0-rc.1"
+version = "0.17"
 default-features = false
 
 [features]

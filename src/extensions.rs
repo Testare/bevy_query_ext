@@ -28,7 +28,7 @@ pub struct OrDefaultQ<T>(PhantomData<T>);
 /// struct CloneMe;
 ///
 /// fn example(query: Query<Cloned<CloneMe>>) {
-///     let _: CloneMe = query.get_single().unwrap();
+///     let _: CloneMe = query.single().unwrap();
 /// }
 /// ```
 ///
@@ -40,7 +40,7 @@ pub struct OrDefaultQ<T>(PhantomData<T>);
 /// struct NotClone;
 ///
 /// fn example(query: Query<Cloned<NotClone>>) {
-///     let _: NotClone = query.get_single().unwrap();
+///     let _: NotClone = query.single().unwrap();
 /// }
 /// ```
 ///
@@ -52,7 +52,7 @@ pub struct OrDefaultQ<T>(PhantomData<T>);
 /// struct CloneMe;
 ///
 /// fn example(query: Query<Cloned<Cloned<CloneMe>>>) {
-///     let _: CloneMe = query.get_single().unwrap();
+///     let _: CloneMe = query.single().unwrap();
 /// }
 /// ```
 pub type Cloned<T> = ModQ<ClonedQ<T>>;
@@ -82,7 +82,7 @@ impl<T: Component + Clone> ModQuery for ClonedQ<T> {
 /// struct CopyMe;
 ///
 /// fn example(query: Query<Copied<CopyMe>>) {
-///     let _: CopyMe = query.get_single().unwrap();
+///     let _: CopyMe = query.single().unwrap();
 /// }
 /// ```
 ///
@@ -94,7 +94,7 @@ impl<T: Component + Clone> ModQuery for ClonedQ<T> {
 /// struct NotCopy;
 ///
 /// fn bad_example(query: Query<Copied<NotCopy>>) {
-///     let _: NotCopy = query.get_single().unwrap();
+///     let _: NotCopy = query.single().unwrap();
 /// }
 /// ```
 ///
@@ -106,7 +106,7 @@ impl<T: Component + Clone> ModQuery for ClonedQ<T> {
 /// struct CopyMe;
 ///
 /// fn bad_example(query: Query<Copied<Copied<CopyMe>>>) {
-///     let _: CopyMe = query.get_single().unwrap();
+///     let _: CopyMe = query.single().unwrap();
 /// }
 /// ```
 pub type Copied<T> = ModQ<CopiedQ<T>>;
@@ -136,7 +136,7 @@ impl<T: Component + Copy> ModQuery for CopiedQ<T> {
 /// struct WrappedBool(bool);
 ///
 /// fn example(query: Query<AsDeref<WrappedBool>>) {
-///     let _: &bool = query.get_single().unwrap();
+///     let _: &bool = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter Example: Type must be Deref
@@ -147,7 +147,7 @@ impl<T: Component + Copy> ModQuery for CopiedQ<T> {
 /// struct WrappedBool(bool);
 ///
 /// fn bad_example(query: Query<AsDeref<WrappedBool>>) {
-///     let _: &bool = query.get_single().unwrap();
+///     let _: &bool = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter Example: Nested Derefs are not currently supported
@@ -162,7 +162,7 @@ impl<T: Component + Copy> ModQuery for CopiedQ<T> {
 /// struct Wwb(WrappedBool);
 ///
 /// fn bad_example(query: Query<AsDeref<AsDeref<WrappedBool>>>) {
-///     let _: &bool = query.get_single().unwrap();
+///     let _: &bool = query.single().unwrap();
 /// }
 /// ```
 pub type AsDeref<T> = ModQ<AsDerefQ<T>>;
@@ -194,8 +194,8 @@ impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
 /// struct WrappedBool(bool);
 ///
 /// fn example(mut query: Query<AsDerefMut<WrappedBool>>) {
-///     let _: Mut<bool> = query.get_single_mut().unwrap();
-///     let _: &bool = query.get_single().unwrap();
+///     let _: Mut<bool> = query.single_mut().unwrap();
+///     let _: &bool = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter Example: Type must be DerefMut
@@ -206,8 +206,8 @@ impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
 /// struct WrappedBool(bool);
 ///
 /// fn bad_example(mut query: Query<AsDerefMut<WrappedBool>>) {
-///     let _: Mut<bool> = query.get_single_mut().unwrap();
-///     let _: &bool = query.get_single().unwrap();
+///     let _: Mut<bool> = query.single_mut().unwrap();
+///     let _: &bool = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter Example: DerefMut does not really compose well with others (Why would it?)
@@ -218,7 +218,7 @@ impl<T: Component + Deref> ModQuery for AsDerefQ<T> {
 /// struct WrappedBool(bool);
 ///
 /// fn bad_example(query: Query<Copied<AsDerefMut<WrappedBool>>>) {
-///     let _: bool = query.get_single().unwrap();
+///     let _: bool = query.single().unwrap();
 /// }
 ///
 /// ```
@@ -250,7 +250,7 @@ impl<T: Component<Mutability = Mutable> + DerefMut> ModQueryMut for AsDerefMutQ<
 /// struct WrappedBool(bool);
 ///
 /// fn example(query: Query<AsDerefCopied<WrappedBool>>) {
-///     let _: bool = query.get_single().unwrap();
+///     let _: bool = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Outer type must implement Deref
@@ -261,7 +261,7 @@ impl<T: Component<Mutability = Mutable> + DerefMut> ModQueryMut for AsDerefMutQ<
 /// struct WrappedBool(bool);
 ///
 /// fn example(query: Query<AsDerefCopied<WrappedBool>>) {
-///     let _: bool = query.get_single().unwrap();
+///     let _: bool = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Inner type must implement Copy
@@ -275,7 +275,7 @@ impl<T: Component<Mutability = Mutable> + DerefMut> ModQueryMut for AsDerefMutQ<
 /// struct WrappedBool(Vec<bool>);
 ///
 /// fn example(query: Query<AsDerefCopied<WrappedBool>>) {
-///     let _: Vec<bool> = query.get_single().unwrap();
+///     let _: Vec<bool> = query.single().unwrap();
 /// }
 /// ```
 pub type AsDerefCopied<T> = Copied<AsDeref<T>>;
@@ -308,7 +308,7 @@ where
 /// struct WrappedBool(Vec<bool>);
 ///
 /// fn example(query: Query<AsDerefCloned<WrappedBool>>) {
-///     let _: Vec<bool> = query.get_single().unwrap();
+///     let _: Vec<bool> = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Outer type must implement Deref
@@ -319,7 +319,7 @@ where
 /// struct WrappedBool(Vec<bool>);
 ///
 /// fn example(query: Query<AsDerefCloned<WrappedBool>>) {
-///     let _: Vec<bool> = query.get_single().unwrap();
+///     let _: Vec<bool> = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Inner type must implement Clone
@@ -335,7 +335,7 @@ where
 /// struct WrappedBool(Uncloneable);
 ///
 /// fn example(query: Query<AsDerefCloned<WrappedBool>>) {
-///     let _: Uncloneable = query.get_single().unwrap();
+///     let _: Uncloneable = query.single().unwrap();
 /// }
 /// ```
 pub type AsDerefCloned<T> = Cloned<AsDeref<T>>;
@@ -382,7 +382,7 @@ where
 /// }
 ///
 /// fn example(query: Query<AsDerefCopiedOfClonedOrDefault<Temperature>>) {
-///     let _: f32 = query.get_single().unwrap();
+///     let _: f32 = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Outer type must implement Default, Deref AND Clone
@@ -399,7 +399,7 @@ where
 /// }
 ///
 /// fn bad_example(query: Query<AsDerefCopiedOfClonedOrDefault<Temperature>>) {
-///     let _: f32 = query.get_single().unwrap();
+///     let _: f32 = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Dereferenced type must implement Copy
@@ -417,7 +417,7 @@ where
 /// }
 ///
 /// fn bad_example(query: Query<AsDerefCopiedOfClonedOrDefault<Temperatures>>) {
-///     let _: Vec<f32> = query.get_single().unwrap();
+///     let _: Vec<f32> = query.single().unwrap();
 /// }
 ///
 /// ```
@@ -465,7 +465,7 @@ where
 /// }
 ///
 /// fn example(query: Query<AsDerefCopiedOfCopiedOrDefault<Temperature>>) {
-///     let _: f32 = query.get_single().unwrap();
+///     let _: f32 = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Outer type must implement Default, Deref AND Copy
@@ -482,7 +482,7 @@ where
 /// }
 ///
 /// fn bad_example(query: Query<AsDerefCopiedOfCopiedOrDefault<NoCopyTemperature>>) {
-///     let _: f32 = query.get_single().unwrap();
+///     let _: f32 = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Dereferenced type must implement Copy
@@ -500,7 +500,7 @@ where
 /// }
 ///
 /// fn bad_example(query: Query<AsDerefCopiedOfCopiedOrDefault<Temperatures>>) {
-///     let _: Vec<f32> = query.get_single().unwrap();
+///     let _: Vec<f32> = query.single().unwrap();
 /// }
 /// ```
 pub type AsDerefCopiedOfCopiedOrDefault<T> = Copied<AsDeref<OrDefault<Copied<T>>>>;
@@ -547,7 +547,7 @@ where
 /// }
 ///
 /// fn example(query: Query<AsDerefClonedOfClonedOrDefault<Temperatures>>) {
-///     let _: Vec<f32> = query.get_single().unwrap();
+///     let _: Vec<f32> = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Outer type must implement Default, Deref AND Clone
@@ -564,7 +564,7 @@ where
 /// }
 ///
 /// fn bad_example(query: Query<AsDerefClonedOfClonedOrDefault<Temperatures>>) {
-///     let _: Vec<f32> = query.get_single().unwrap();
+///     let _: Vec<f32> = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Dereferenced type must implement Clone
@@ -585,7 +585,7 @@ where
 /// }
 ///
 /// fn bad_example(query: Query<AsDerefClonedOfClonedOrDefault<Temperature>>) {
-///     let _: Uncloneable = query.get_single().unwrap();
+///     let _: Uncloneable = query.single().unwrap();
 /// }
 ///
 /// ```
@@ -622,7 +622,7 @@ where
 /// // Note: This query is also aliased as `CopiedOrDefault`
 /// fn example(query: Query<OrDefault<Copied<Velocity2D>>>) {
 ///     // If item does not have Velocity2D, a default is created
-///     let _: Velocity2D = query.get_single().unwrap();
+///     let _: Velocity2D = query.single().unwrap();
 /// }
 /// ```
 /// ## Counter example: Can't use on component directly
@@ -633,7 +633,7 @@ where
 /// struct Velocity2D{x: f32, y: f32};
 ///
 /// fn bad_example(query: Query<OrDefault<Velocity2D>>) {
-///     let _: Velocity2D = query.get_single().unwrap();
+///     let _: Velocity2D = query.single().unwrap();
 /// }
 /// ```
 /// ## Example: Default for references
@@ -645,7 +645,7 @@ where
 /// struct Velocity2D{x: f32, y: f32};
 ///
 /// fn example(query: Query<OrDefault<&Velocity2D>>) {
-///     let _: &Velocity2D = query.get_single().unwrap();
+///     let _: &Velocity2D = query.single().unwrap();
 /// }
 /// ```
 ///
@@ -666,7 +666,7 @@ where
 /// }
 ///
 /// fn example(query: Query<OrDefault<&Velocity2D>>) {
-///     let _: &Velocity2D = query.get_single().unwrap();
+///     let _: &Velocity2D = query.single().unwrap();
 /// }
 /// ```
 pub type OrDefault<T> = ModQ<OrDefaultQ<T>>;
@@ -699,7 +699,7 @@ where
 ///
 /// fn example(query: Query<CopiedOrDefault<Velocity2D>>) {
 ///     // If item does not have Velocity2D, a default is created
-///     let _: Velocity2D = query.get_single().unwrap();
+///     let _: Velocity2D = query.single().unwrap();
 /// }
 /// ```
 pub type CopiedOrDefault<T> = OrDefault<Copied<T>>;
@@ -713,7 +713,7 @@ pub type CopiedOrDefault<T> = OrDefault<Copied<T>>;
 ///
 /// fn example(query: Query<ClonedOrDefault<Velocity2D>>) {
 ///     // If item does not have Velocity2D, a default is created
-///     let _: Velocity2D = query.get_single().unwrap();
+///     let _: Velocity2D = query.single().unwrap();
 /// }
 /// ```
 pub type ClonedOrDefault<T> = OrDefault<Cloned<T>>;
@@ -730,7 +730,7 @@ pub type ClonedOrDefault<T> = OrDefault<Cloned<T>>;
 ///
 /// fn example(query: Query<AsDerefCopiedOrDefault<IsFrozen>>) {
 ///     // If IsFrozen is not present, will default to `false`
-///     let _: bool = query.get_single().unwrap();
+///     let _: bool = query.single().unwrap();
 /// }
 /// ```
 pub type AsDerefCopiedOrDefault<T> = OrDefault<AsDerefCopied<T>>;
@@ -746,7 +746,7 @@ pub type AsDerefCopiedOrDefault<T> = OrDefault<AsDerefCopied<T>>;
 /// struct FriendNames(Vec<String>);
 ///
 /// fn example(query: Query<AsDerefClonedOrDefault<FriendNames>>) {
-///     let _: Vec<String> = query.get_single().unwrap();
+///     let _: Vec<String> = query.single().unwrap();
 /// }
 /// ```
 pub type AsDerefClonedOrDefault<T> = OrDefault<AsDerefCloned<T>>;
