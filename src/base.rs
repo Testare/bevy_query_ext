@@ -54,6 +54,8 @@ unsafe impl<T: ModQuery> QueryData for ModQ<T> {
     type Item<'w, 's> = T::ModItem<'w, 's>;
 
     const IS_READ_ONLY: bool = true;
+    const IS_ARCHETYPAL: bool = <T::FromQuery as QueryData>::IS_ARCHETYPAL;
+
 
     fn shrink<'wlong: 'wshort, 'wshort, 's>(
         item: Self::Item<'wlong, 's>,
@@ -61,16 +63,20 @@ unsafe impl<T: ModQuery> QueryData for ModQ<T> {
         T::shrink(item)
     }
 
+    fn iter_access(state: &Self::State) -> impl Iterator<Item = bevy::ecs::query::EcsAccessType<'_>> {
+        <T::FromQuery as QueryData>::iter_access(state)
+    }
+
     unsafe fn fetch<'w, 's>(
         state: &'s Self::State,
         fetch: &mut Self::Fetch<'w>,
         entity: bevy::prelude::Entity,
         table_row: bevy::ecs::storage::TableRow,
-    ) -> Self::Item<'w, 's> {
+    ) -> Option<Self::Item<'w, 's>> {
         unsafe {
-            T::modify_reference(<T::FromQuery as QueryData>::fetch(
+            (<T::FromQuery as QueryData>::fetch(
                 state, fetch, entity, table_row,
-            ))
+            )).map(T::modify_reference)
         }
     }
 }
@@ -85,8 +91,8 @@ unsafe impl<T: ModQuery> WorldQuery for ModQ<T> {
     unsafe fn init_fetch<'w>(
         world: UnsafeWorldCell<'w>,
         state: &Self::State,
-        last_run: bevy::ecs::component::Tick,
-        this_run: bevy::ecs::component::Tick,
+        last_run: bevy::ecs::change_detection::Tick,
+        this_run: bevy::ecs::change_detection::Tick,
     ) -> Self::Fetch<'w> {
         unsafe { <T::FromQuery as WorldQuery>::init_fetch(world, state, last_run, this_run) }
     }
@@ -146,8 +152,8 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
     unsafe fn init_fetch<'w>(
         world: UnsafeWorldCell<'w>,
         state: &Self::State,
-        last_run: bevy::ecs::component::Tick,
-        this_run: bevy::ecs::component::Tick,
+        last_run: bevy::ecs::change_detection::Tick,
+        this_run: bevy::ecs::change_detection::Tick,
     ) -> Self::Fetch<'w> {
         unsafe { <T::FromQuery as WorldQuery>::init_fetch(world, state, last_run, this_run) }
     }
@@ -198,6 +204,7 @@ unsafe impl<T: ModQueryMut> QueryData for ModQMut<T> {
     type ReadOnly = T::ReadOnly;
     type Item<'w, 's> = T::ModItem<'w, 's>;
 
+    const IS_ARCHETYPAL: bool = T::FromQuery::IS_ARCHETYPAL;
     const IS_READ_ONLY: bool = T::FromQuery::IS_READ_ONLY;
 
     fn shrink<'wlong: 'wshort, 'wshort, 's>(
@@ -206,16 +213,20 @@ unsafe impl<T: ModQueryMut> QueryData for ModQMut<T> {
         T::shrink(item)
     }
 
+    fn iter_access(state: &Self::State) -> impl Iterator<Item = bevy::ecs::query::EcsAccessType<'_>> {
+        T::FromQuery::iter_access(state)
+    }
+
     unsafe fn fetch<'w, 's>(
         state: &'s Self::State,
         fetch: &mut Self::Fetch<'w>,
         entity: bevy::prelude::Entity,
         table_row: bevy::ecs::storage::TableRow,
-    ) -> Self::Item<'w, 's> {
+    ) -> Option<Self::Item<'w, 's>> {
         unsafe {
-            T::modify_reference(<T::FromQuery as QueryData>::fetch(
+            (<T::FromQuery as QueryData>::fetch(
                 state, fetch, entity, table_row,
-            ))
+            )).map(T::modify_reference)
         }
     }
 }
