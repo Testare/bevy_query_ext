@@ -1,7 +1,7 @@
 use core::marker::PhantomData;
 
 use bevy::ecs::archetype::Archetype;
-use bevy::ecs::query::{FilteredAccess, QueryData, ReadOnlyQueryData, WorldQuery};
+use bevy::ecs::query::{FilteredAccess, IterQueryData, QueryData, ReadOnlyQueryData, WorldQuery};
 use bevy::ecs::storage::Table;
 use bevy::ecs::world::World;
 use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
@@ -48,6 +48,9 @@ pub trait ModQueryMut {
         item: Self::ModItem<'wlong, 's>,
     ) -> Self::ModItem<'wshort, 's>;
 }
+
+// SAFETY: ModQuery comes from a read only query
+unsafe impl<T: ModQuery> IterQueryData for ModQ<T> {}
 
 unsafe impl<T: ModQuery> QueryData for ModQ<T> {
     type ReadOnly = Self;
@@ -200,7 +203,11 @@ unsafe impl<T: ModQueryMut> WorldQuery for ModQMut<T> {
     }
 }
 
+// SAFETY: ModQMut implements QueryData
+unsafe impl<T: ModQueryMut> IterQueryData for ModQMut<T> {}
+
 unsafe impl<T: ModQueryMut> QueryData for ModQMut<T> {
+
     type ReadOnly = T::ReadOnly;
     type Item<'w, 's> = T::ModItem<'w, 's>;
 
